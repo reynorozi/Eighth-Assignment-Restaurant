@@ -1,52 +1,89 @@
 package ap.restaurant.restaurant;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-import java.awt.event.ActionEvent;
 import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.io.IOException;
 
 public class Singup {
 
-    @FXML
-    private TextField username;
+    @FXML private TextField username;
     @FXML private PasswordField pass;
+    @FXML private Label passlabel;
 
-    public  void signup (ActionEvent event) {
-
+    public void signup(ActionEvent event) {
         String usernamee = username.getText();
         String password = pass.getText();
         String hashpass = hash(password);
-        System.out.println("username field: " + username);
-        System.out.println("password field: " + password);
-        savedata(usernamee,hashpass);
 
+        boolean success = savedata(usernamee, hashpass);
 
+        if (success) {
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("menu&orders.fxml"));
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public static void savedata(String username, String password) {
-
+    public boolean savedata(String username, String password) {
         try {
-            System.out.println("lskejd;lkjs;lgdkj;dlgj");
             Connection con = JDBC.database();
-            String query = "INSERT INTO userr(user_name , password) VALUES(?,?)";
-            PreparedStatement ps = con.prepareStatement(query);
+            String query0 = "SELECT user_name FROM userr WHERE user_name = ?";
+            PreparedStatement ps = con.prepareStatement(query0);
             ps.setString(1, username);
-            ps.setString(2, password);
-            ps.executeUpdate();
-            ps.close();
+            ResultSet rs = ps.executeQuery();
 
-        }
-        catch (SQLException e) {
+            if (rs.next()) {
+                passlabel.setText("Username is already taken");
+                passlabel.setStyle("-fx-text-fill: red;");
+                return false;
+            } else {
+                String query = "INSERT INTO userr(user_name, password) VALUES(?, ?)";
+                PreparedStatement ps1 = con.prepareStatement(query);
+                ps1.setString(1, username);
+                ps1.setString(2, password);
+                ps1.executeUpdate();
+                ps1.close();
+
+
+                String getIdQuery = "SELECT id FROM userr WHERE user_name = ?";
+                PreparedStatement ps2 = con.prepareStatement(getIdQuery);
+                ps2.setString(1, username);
+                ResultSet rs2 = ps2.executeQuery();
+                if (rs2.next()) {
+                    Session.userId = rs2.getInt("id");
+                    Session.username = username;
+                }
+                ps2.close();
+
+                passlabel.setText("Sign up successfully");
+                passlabel.setStyle("-fx-text-fill: #056905;");
+                return true;
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-
-
     }
+
 
     public static String hash(String password) {
         try {
@@ -59,7 +96,6 @@ public class Singup {
             }
 
             return sb.toString();
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

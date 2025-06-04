@@ -28,16 +28,6 @@ public class HandleAuth {
         Scene currentScene = new Scene(root);
         currentStage.setScene(currentScene);
         currentStage.show();
-//        String usernamee = username.getText();
-//        String password = pass.getText();
-//        String hashpass = hash(password);
-//        System.out.println("username field: " + username);
-//        System.out.println("password field: " + password);
-//
-//
-//        Singup.savedata(usernamee, hashpass);
-
-
 
     }
 
@@ -50,8 +40,5 @@ public class HandleAuth {
         currentStage.show();
 
     }
-
-
-
 
 }

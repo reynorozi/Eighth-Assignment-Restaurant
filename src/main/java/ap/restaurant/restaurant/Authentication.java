@@ -14,7 +14,7 @@ public class Authentication extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(Authentication.class.getResource("Authentication-Page.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setResizable(false);
+//        stage.setResizable(false);
         stage.setWidth(460);
         stage.setHeight(585);
         stage.setTitle("Starbucks");
